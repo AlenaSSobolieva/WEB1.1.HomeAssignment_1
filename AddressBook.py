@@ -186,24 +186,50 @@ class Record: #validation and conversion of field values are already handled by 
         }
 
 
-class AddressBook(UserDict, AbstractData):
+class AbstractAddressBook(ABC):
+    @abstractmethod
+    def add_record(self, record: Record) -> None:
+        pass
+
+    @abstractmethod
+    def get_record(self, key: str) -> Record:
+        pass
+
+    @abstractmethod
+    def delete_record(self, key: str) -> None:
+        pass
+
+    @abstractmethod
+    def groups_days_to_bd(self, input_days: str) -> list[Record]:
+        pass
+
+    @abstractmethod
+    def to_dict(self) -> dict:
+        pass
+
+    @abstractmethod
+    def from_dict(self, data_json: dict) -> None:
+        pass
+
+    @abstractmethod
+    def search(self, search_word: str) -> list[Record]:
+        pass
+
+    @abstractmethod
+    def iterate_records(self, item_number: int) -> t.Generator[Record, int, None]:
+        pass
+
+class AddressBook(UserDict, AbstractAddressBook):
     def add_record(self, record: Record) -> None:
         self[record.name.value] = record
 
-    def __getitem__(self, key: str) -> Record:
+    def get_record(self, key: str) -> Record:
         record = self.data.get(key)
         if record is None:
             raise KeyError(f"This name {key} isn't in Address Book")
         return record
 
-    def __setitem__(self, key: str, val: Record) -> None:
-        if not isinstance(val, Record):
-            raise TypeError("Record must be an instance of the Record class.")
-        if key in self.data:
-            raise KeyError(f"This name '{key}' is already in contacts")
-        self.data[key] = val
-
-    def __delitem__(self, key: str) -> None:
+    def delete_record(self, key: str) -> None:
         if not isinstance(key, str):
             raise KeyError("Value must be a string")
         if key not in self.data:
@@ -245,12 +271,6 @@ class AddressBook(UserDict, AbstractData):
                        address=record['address']),
             )
 
-    def __str__(self) -> str:
-        return "\n".join([str(r) for r in self.values()])
-
-    def output_all_data(self) -> str:
-        return "\n".join([str(record)[9] for record in self.values()])
-
     def search(self, search_word: str) -> list[Record]:
         search_list = []
         for record in self.data.values():
@@ -264,7 +284,7 @@ class AddressBook(UserDict, AbstractData):
                 search_list.append(record)
         return search_list
 
-    def iterator(self, item_number: int) -> t.Generator[Record, int, None]:
+    def iterate_records(self, item_number: int) -> t.Generator[Record, int, None]:
         if item_number <= 0:
             raise ValueError("Item number must be greater than 0.")
         elif item_number > len(self.data):
@@ -276,7 +296,6 @@ class AddressBook(UserDict, AbstractData):
             if (not counter % item_number) or counter == len(self.data):
                 yield list_records
                 list_records = []
-
 
 if __name__ == "__main__":
     pass
