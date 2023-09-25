@@ -4,7 +4,6 @@ import re
 from datetime import date, timedelta
 import typing as t
 
-from DigiDuckBook.abc_book import AbstractData
 
 # abstract base class that defines the common properties and methods for all field types, including the validation logic
 # Each specific field type (Name, Phone, Email, Birthday, Address) inherits from AbstractField and provides its own validation logic by implementing the _validate method
